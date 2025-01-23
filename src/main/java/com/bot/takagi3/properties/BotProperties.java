@@ -11,6 +11,8 @@ import java.util.List;
 @Data
 public class BotProperties
 {
+    String postUrl;
+
     List<Long> serveGroups;
 
     List<Long> userBlackList;

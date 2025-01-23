@@ -2,26 +2,30 @@ server:
   port: 6060
 
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   profiles:
     active: dev
   main:
     allow-circular-references: true
   datasource:
     druid:
-      driver-class-name: ${qqbot.datasource.driver-class-name}
-      url: jdbc:mysql://${qqbot.datasource.host}:${qqbot.datasource.port}/${qqbot.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-      username: ${qqbot.datasource.username}
-      password: ${qqbot.datasource.password}
-      schema-adr: ${qqbot.datasource.schema}
-      data-adr: ${qqbot.datasource.data}
+      driver-class-name: ${bot.datasource.driver-class-name}
+      url: jdbc:mysql://${bot.datasource.host}:${bot.datasource.port}/${bot.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${bot.datasource.username}
+      password: ${bot.datasource.password}
+      schema-adr: ${bot.datasource.schema}
+      data-adr: ${bot.datasource.data}
+
 
 logging:
   level:
     com:
     bot:
-    takagi3: debug
+    takagi3: info
 
 takagi3:
+  post-url: http://127.0.0.1:3030/
   serve-groups:
 
   user-black-list:
@@ -47,12 +51,12 @@ shiro:
     client:
       # 是否启用
       enable: false
-      url: "ws://websocket_server:port"
+      url: "ws://127.0.0.1:6060/ws/Takagi3"
     server:
       # 是否启用
       enable: true
       # 反向 Websocket 连接地址，无需该配置字段可删除，将使用默认值 "/ws/shiro"
-      url: "/ws/takagi3"
+      url: "/ws/Takagi3"
       # 最大空闲时间，超过这个时间将关闭会话
       max-session-idle-timeout: 900000
   # 限速器（令牌桶算法）
@@ -77,7 +81,7 @@ shiro:
     # 允许线程空闲时间（单位：默认为秒）
     keep-alive-time: 100
     # 最大线程数
-    max-pool-size: 30
+    max-pool-size: 300
     # 线程池名前缀
     thread-name-prefix: "TakagiBotThreadPool-"
 
