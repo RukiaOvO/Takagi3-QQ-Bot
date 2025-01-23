@@ -23,9 +23,7 @@ logging:
 
 takagi3:
   serve-groups:
-    - 977028567
-#    - 883733189
-#    - 916641609
+
   user-black-list:
 
 
