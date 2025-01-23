@@ -18,7 +18,8 @@ spring:
 logging:
   level:
     com:
-    bot: debug
+    bot:
+    takagi3: debug
 
 shiro:
   # 注解方式编写的插件无需在插件列表（plugin-list）定义
