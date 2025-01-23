@@ -20,12 +20,18 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-@Slf4j
 @Configuration
+@Slf4j
 public class MysqlConfiguration
 {
+    private final MysqlProperties mysqlProperties;
+
     @Autowired
-    private MysqlProperties mysqlProperties;
+    public MysqlConfiguration(MysqlProperties mysqlProperties)
+    {
+        this.mysqlProperties = mysqlProperties;
+    }
+
 
     @PostConstruct
     private void initDatabase()
@@ -42,8 +48,7 @@ public class MysqlConfiguration
         try (Connection connection = DriverManager.getConnection(mysqlProperties.getUrl(), mysqlProperties.getUsername(), mysqlProperties.getPassword()))
         {
 //            runSQLScript(mysqlProperties.getSchemaAdr(), true, connection);
-            runSQLScript(mysqlProperties.getDataAdr(), true, connection);
-            log.info("初始化数据库完成！");
+//            runSQLScript(mysqlProperties.getDataAdr(), true, connection);
         }
         catch (Exception e)
         {
