@@ -1,27 +1,19 @@
-package com.bot.takagi3.plugin;
+package com.bot.takagi3.boot;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.bot.takagi3.constant.BotMsgConstant;
 import com.bot.takagi3.properties.BotProperties;
 import com.bot.takagi3.util.CommonUtil;
 import com.bot.takagi3.util.HttpUtil;
-import com.mikuac.shiro.common.utils.MsgUtils;
-import com.mikuac.shiro.common.utils.ShiroUtils;
 import com.mikuac.shiro.constant.ActionParams;
 import com.mikuac.shiro.core.Bot;
-import com.mikuac.shiro.core.BotContainer;
 import com.mikuac.shiro.core.CoreEvent;
-import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
-import com.mikuac.shiro.enums.ActionPath;
 import com.mikuac.shiro.enums.ActionPathEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
-
-import javax.swing.*;
-import java.util.List;
 
 
 @Primary
@@ -62,6 +54,15 @@ public class BotOnlineNotify extends CoreEvent
         params.put(ActionParams.MESSAGE, msg);
         params.put(ActionParams.AUTO_ESCAPE, false);
 
-        HttpUtil.asyncPost(botProperties.getPostUrl() + ActionPathEnum.SEND_GROUP_MSG.getPath(), params.toJSONString(), 20);
+        String result = HttpUtil.asyncPost(botProperties.getPostUrl() + ActionPathEnum.SEND_GROUP_MSG.getPath(), params.toJSONString(), 20);
+        JSONObject resultMap = JSONObject.parseObject(result);
+        if(resultMap.get("status").equals(BotMsgConstant.RESP_SUCCESS))
+        {
+            log.info("Bot send offline message to group:{} success.", groupId);
+        }
+        else
+        {
+            log.info("Bot send offline message to group:{} failed: {}", groupId, resultMap.get("message"));
+        }
     }
 }

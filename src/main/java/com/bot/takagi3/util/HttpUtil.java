@@ -14,7 +14,7 @@ public class HttpUtil
 {
     private HttpUtil(){}
 
-    public static void asyncPost(String url, String jsonStr, int timeout)
+    public static String asyncPost(String url, String jsonStr, int timeout)
     {
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(timeout))
@@ -33,10 +33,6 @@ public class HttpUtil
                 });
 
         // 等待异步请求完成并获取结果
-        String responseBody = result.join();
-        if (responseBody != null)
-        {
-            log.info("Request to {} succeed: {}", url, responseBody);
-        }
+        return result.join();
     }
 }
