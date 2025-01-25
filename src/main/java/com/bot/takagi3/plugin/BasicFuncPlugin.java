@@ -1,35 +1,24 @@
 package com.bot.takagi3.plugin;
 
-import com.alibaba.fastjson2.JSONObject;
-import com.bot.takagi3.boot.app;
 import com.bot.takagi3.constant.BotMsgConstant;
-import com.bot.takagi3.constant.Common;
-import com.bot.takagi3.constant.MsgEventConstant;
-import com.bot.takagi3.constant.RequestParamConstant;
+import com.bot.takagi3.constant.CommonConstant;
 import com.bot.takagi3.properties.BotProperties;
 import com.bot.takagi3.util.CommonUtil;
-import com.bot.takagi3.util.HttpUtil;
 import com.mikuac.shiro.annotation.GroupMessageHandler;
 import com.mikuac.shiro.annotation.MessageHandlerFilter;
 import com.mikuac.shiro.annotation.common.Shiro;
 import com.mikuac.shiro.common.utils.MsgUtils;
 import com.mikuac.shiro.common.utils.OneBotMedia;
-import com.mikuac.shiro.constant.ActionParams;
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.dto.action.common.ActionData;
-import com.mikuac.shiro.dto.action.common.ActionList;
 import com.mikuac.shiro.dto.action.common.ActionRaw;
 import com.mikuac.shiro.dto.action.common.MsgId;
 import com.mikuac.shiro.dto.action.response.GroupMemberInfoResp;
 import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
-import com.mikuac.shiro.enums.ActionPathEnum;
 import com.mikuac.shiro.enums.AtEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.net.URL;
-import java.util.Objects;
 import java.util.regex.Matcher;
 
 @Shiro
@@ -73,7 +62,7 @@ public class BasicFuncPlugin
     public void setSpecialTitle(Bot bot, GroupMessageEvent event, Matcher matcher)
     {
         String title = matcher.group(1);
-        log.info("User:{} setSpecialTitle {}", event.getUserId(), title);
+        log.info("User:{} setSpecialTitle:{}", event.getUserId(), title);
 
         ActionRaw actionResp = bot.setGroupSpecialTitle(event.getGroupId(), event.getUserId(), title, -1);
         String replyMsg = actionResp.getStatus().equals(BotMsgConstant.RESP_SUCCESS) ?
@@ -104,7 +93,9 @@ public class BasicFuncPlugin
             targetId = event.getUserId();
             replyMsg = BotMsgConstant.BAN_YOURSELF;
         }
-        ActionRaw result = bot.setGroupBan(event.getGroupId(), targetId, Common.BAN_LIMIT);
+
+        log.info("User:{} ban {}", event.getUserId(), targetId);
+        ActionRaw result = bot.setGroupBan(event.getGroupId(), targetId, CommonConstant.BAN_LIMIT);
         replyMsg = result.getStatus().equals(BotMsgConstant.RESP_SUCCESS) ? replyMsg : BotMsgConstant.BAN_FAILURE;
 
         replyMsg = MsgUtils.builder()
@@ -119,7 +110,9 @@ public class BasicFuncPlugin
     @MessageHandlerFilter(cmd = "^菜单$", at = AtEnum.NEED)
     public void getOrderMenu(Bot bot, GroupMessageEvent event)
     {
-        String imgUrl = CommonUtil.getImgStaticUrlByName(Common.ORDER_MENU_IMG_NAME);
+        log.info("User:{} getOrderMenu.", event.getUserId());
+
+        String imgUrl = CommonUtil.getImgStaticUrlByName(CommonConstant.ORDER_MENU_IMG_NAME);
         OneBotMedia orderMenuImg = OneBotMedia.builder().file(imgUrl).cache(false);
         String replyMsg = MsgUtils.builder()
                 .at(event.getUserId())
@@ -134,6 +127,29 @@ public class BasicFuncPlugin
                     .reply(event.getMessageId())
                     .text(BotMsgConstant.GET_ORDER_MENU_FAILURE)
                     .build();
+            bot.sendGroupMsg(event.getGroupId(), replyMsg, false);
+        }
+    }
+
+    @GroupMessageHandler
+    @MessageHandlerFilter(cmd = "^翻译(\\s+[\\p{L}]+)(\\s+[\\u4e00-\\u9fa5]+)?$", at = AtEnum.NEED)
+    public void translateMsg(Bot bot, GroupMessageEvent event, Matcher matcher)
+    {
+        String textMsg = matcher.group(1);
+        String targetLanguage = matcher.group(2) == null ? "chinese" : matcher.group(2);
+    }
+
+    @GroupMessageHandler
+    @MessageHandlerFilter(cmd = "^公告(\\s+.*)$", at = AtEnum.NEED)
+    public void publishGroupNotice(Bot bot, GroupMessageEvent event, Matcher matcher)
+    {
+        String content = matcher.group(1);
+
+        log.info("User:{} sendGroupNotice:{}", event.getUserId(), content);
+        ActionRaw result = bot.sendGroupNotice(event.getGroupId(), content);
+        if(!result.getStatus().equals(BotMsgConstant.RESP_SUCCESS))
+        {
+            String replyMsg = MsgUtils.builder().at(event.getUserId()).reply(event.getMessageId()).text(BotMsgConstant.SEND_GROUP_NOTICE_FAILURE).build();
             bot.sendGroupMsg(event.getGroupId(), replyMsg, false);
         }
     }

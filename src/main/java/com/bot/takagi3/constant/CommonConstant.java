@@ -1,8 +1,8 @@
 package com.bot.takagi3.constant;
 
-public class Common
+public class CommonConstant
 {
-    private Common(){}
+    private CommonConstant(){}
 
     public static final Integer BAN_LIMIT = 60;
 

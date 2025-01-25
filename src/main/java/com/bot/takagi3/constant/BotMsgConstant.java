@@ -18,6 +18,12 @@ public class BotMsgConstant
 
     public static final String BAN_FAILURE = "禁言失败";
 
+    public static final String GET_ANIME_IMG_FAILURE = "请求图片失败";
+
+    public static final String SEND_IMG_ERROR = "发送图片时发生错误";
+
+    public static final String SEND_GROUP_NOTICE_FAILURE = "设置群公告失败";
+
     public static final String GET_ORDER_MENU_FAILURE = "获取菜单数据失败";
 
     public static final String UNKNOWN_GROUP_MEMBER = "查无此群友";
