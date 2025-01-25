@@ -16,4 +16,6 @@ public class BotProperties
     List<Long> serveGroups;
 
     List<Long> userBlackList;
+
+    String dataDir;
 }
