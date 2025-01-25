@@ -19,6 +19,7 @@ import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.dto.action.common.ActionData;
 import com.mikuac.shiro.dto.action.common.ActionList;
 import com.mikuac.shiro.dto.action.common.ActionRaw;
+import com.mikuac.shiro.dto.action.common.MsgId;
 import com.mikuac.shiro.dto.action.response.GroupMemberInfoResp;
 import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
 import com.mikuac.shiro.enums.ActionPathEnum;
@@ -125,6 +126,15 @@ public class BasicFuncPlugin
                 .reply(event.getMessageId())
                 .img(orderMenuImg)
                 .build();
-        bot.sendGroupMsg(event.getGroupId(), replyMsg, false);
+        ActionData<MsgId> result = bot.sendGroupMsg(event.getGroupId(), replyMsg, false);
+        if(!result.getStatus().equals(BotMsgConstant.RESP_SUCCESS))
+        {
+            replyMsg = MsgUtils.builder()
+                    .at(event.getUserId())
+                    .reply(event.getMessageId())
+                    .text(BotMsgConstant.GET_ORDER_MENU_FAILURE)
+                    .build();
+            bot.sendGroupMsg(event.getGroupId(), replyMsg, false);
+        }
     }
 }
