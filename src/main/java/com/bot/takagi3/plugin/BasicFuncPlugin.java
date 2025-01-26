@@ -2,6 +2,7 @@ package com.bot.takagi3.plugin;
 
 import com.bot.takagi3.constant.BotMsgConstant;
 import com.bot.takagi3.constant.CommonConstant;
+import com.bot.takagi3.constant.RequestParamConstant;
 import com.bot.takagi3.properties.BotProperties;
 import com.bot.takagi3.util.CommonUtil;
 import com.mikuac.shiro.annotation.GroupMessageHandler;
@@ -9,6 +10,7 @@ import com.mikuac.shiro.annotation.MessageHandlerFilter;
 import com.mikuac.shiro.annotation.common.Shiro;
 import com.mikuac.shiro.common.utils.MsgUtils;
 import com.mikuac.shiro.common.utils.OneBotMedia;
+import com.mikuac.shiro.common.utils.ShiroUtils;
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.dto.action.common.ActionData;
 import com.mikuac.shiro.dto.action.common.ActionRaw;
@@ -16,9 +18,12 @@ import com.mikuac.shiro.dto.action.common.MsgId;
 import com.mikuac.shiro.dto.action.response.GroupMemberInfoResp;
 import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
 import com.mikuac.shiro.enums.AtEnum;
+import com.mikuac.shiro.task.ShiroAsyncTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
 @Shiro
@@ -77,33 +82,38 @@ public class BasicFuncPlugin
     }
 
     @GroupMessageHandler
-    @MessageHandlerFilter(cmd = "^禁言\\s*\\[CQ:at,qq=(\\d+).*?\\]", at = AtEnum.NEED)
+    @MessageHandlerFilter(cmd = "^禁言\\s*\\[CQ:at,qq=([0-9]+).*?(\\s*[0-9]+)?$", at = AtEnum.NEED)
     public void setGroupBan(Bot bot, GroupMessageEvent event, Matcher matcher)
     {
-        String replyMsg;
-        Long targetId = Long.parseLong(matcher.group(1));
-        ActionData<GroupMemberInfoResp> groupMemberInfo = bot.getGroupMemberInfo(event.getGroupId(), targetId, false);
-        if(groupMemberInfo.getData() != null && groupMemberInfo.getStatus().equals(BotMsgConstant.RESP_SUCCESS))
-        {
-            targetId = groupMemberInfo.getData().getUserId();
-            replyMsg = targetId.equals(event.getUserId()) ? BotMsgConstant.BAN_YOURSELF : BotMsgConstant.BAN_GROUP_MEMBER + groupMemberInfo.getData().getNickname();
-        }
-        else
-        {
-            targetId = event.getUserId();
-            replyMsg = BotMsgConstant.BAN_YOURSELF;
-        }
+        long targetId = Long.parseLong(matcher.group(1));
+        long time = matcher.group(2) == null ? 10 : Long.parseLong(matcher.group(2).trim());
 
-        log.info("User:{} ban {}", event.getUserId(), targetId);
+        log.info("User:{} ban {} {} seconds.", event.getUserId(), targetId, time);
         ActionRaw result = bot.setGroupBan(event.getGroupId(), targetId, CommonConstant.BAN_LIMIT);
-        replyMsg = result.getStatus().equals(BotMsgConstant.RESP_SUCCESS) ? replyMsg : BotMsgConstant.BAN_FAILURE;
-
-        replyMsg = MsgUtils.builder()
-                .at(event.getUserId())
-                .reply(event.getMessageId())
-                .text(replyMsg)
-                .build();
-        bot.sendGroupMsg(event.getGroupId(), replyMsg, false);
+        if(!result.getStatus().equals(BotMsgConstant.RESP_SUCCESS))
+        {
+            String replyMsg = MsgUtils.builder()
+                    .at(event.getUserId())
+                    .reply(event.getMessageId())
+                    .text(BotMsgConstant.BAN_FAILURE)
+                    .build();
+            bot.sendGroupMsg(event.getGroupId(), replyMsg, false);
+            return;
+        }
+        try
+        {
+            TimeUnit.SECONDS.sleep(time);
+            bot.setGroupBan(event.getGroupId(), targetId, RequestParamConstant.UN_BAN);
+        }
+        catch(Exception e)
+        {
+            String replyMsg = MsgUtils.builder()
+                    .at(event.getUserId())
+                    .reply(event.getMessageId())
+                    .text(e.getMessage())
+                    .build();
+            bot.sendGroupMsg(event.getGroupId(), replyMsg, false);
+        }
     }
 
     @GroupMessageHandler
