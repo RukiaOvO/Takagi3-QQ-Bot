@@ -24,7 +24,8 @@ public class BotMsgInterceptor implements BotMessageEventInterceptor
         if(event.getMessageType().equals(MsgEventConstant.GROUP_TYPE))
         {
             Long groupId = ((GroupMessageEvent) event).getGroupId();
-            return botProperties.getServeGroups().contains(groupId);
+            Long userId = event.getUserId();
+            return botProperties.getServeGroups().contains(groupId) && !botProperties.getUserBlackList().contains(userId);
         }
         else if(event.getMessageType().equals(MsgEventConstant.PRIVATE_TYPE))
         {

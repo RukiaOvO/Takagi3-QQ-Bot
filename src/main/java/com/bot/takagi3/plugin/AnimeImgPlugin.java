@@ -34,7 +34,7 @@ public class AnimeImgPlugin
         String tag = matcher.group(1) == null ? "" : matcher.group(1);
         int isR18 = matcher.group(2) == null ? 0 : 1;
 
-        log.info("User:{} get randomAnimeImg:{}", event.getUserId(), tag);
+        log.info("User:{} get randomAnimeImg:{} isR18 = {}", event.getUserId(), tag, isR18 == 1);
         RandomAnimeImg animeImg = httpRequestService.postForRandomAnimeImg(tag, isR18);
         if(animeImg == null)
         {
@@ -50,7 +50,7 @@ public class AnimeImgPlugin
                     .at(event.getUserId())
                     .reply(event.getMessageId())
                     .img(animeImg.getImg())
-                    .text(String.format("标题:%s\nIsR18:%s\n", animeImg.getTitle(), animeImg.getIsR18()))
+                    .text(String.format("标题:%s\nIsR18:%s", animeImg.getTitle(), animeImg.getIsR18()))
                     .build();
         }
         ActionData<MsgId> result = bot.sendGroupMsg(event.getGroupId(), replyMsg, false);

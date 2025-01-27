@@ -26,6 +26,8 @@ public class BotMsgConstant
 
     public static final String GET_ORDER_MENU_FAILURE = "获取菜单数据失败";
 
+    public static final String SEND_GPT_REQUEST_FAILURE = "请求Gpt失败";
+
     public static final String UNKNOWN_GROUP_MEMBER = "查无此群友";
 
     public static final String BAN_YOURSELF = "禁言你自己";

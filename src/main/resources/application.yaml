@@ -16,6 +16,13 @@ spring:
       password: ${bot.datasource.password}
       schema-adr: ${bot.datasource.schema}
       data-adr: ${bot.datasource.data}
+  data:
+    redis:
+      host: ${bot.redis.host}
+      port: ${bot.redis.port}
+      password: ${bot.redis.password}
+      database: ${bot.redis.database}
+
 
 
 logging:
@@ -28,6 +35,7 @@ takagi3:
   post-url: ${takagi3.post-url}
   serve-groups: ${takagi3.serve-groups}
   user-black-list: ${takagi3.user-black-list}
+  gpt-model: ${takagi3.gpt-model}
   gpt-api-key: ${takagi3.gpt-api-key}
   gpt-repost-url: ${takagi3.gpt-repost-url}
 

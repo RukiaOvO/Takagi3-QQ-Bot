@@ -17,5 +17,9 @@ public class BotProperties
 
     List<Long> userBlackList;
 
-    String dataDir;
+    String gptModel;
+
+    String gptApiKey;
+
+    String gptRepostUrl;
 }
