@@ -25,11 +25,11 @@ logging:
     takagi3: info
 
 takagi3:
-  post-url: http://127.0.0.1:3030/
-  serve-groups:
-
-  user-black-list:
-
+  post-url: ${takagi3.post-url}
+  serve-groups: ${takagi3.serve-groups}
+  user-black-list: ${takagi3.user-black-list}
+  gpt-api-key: ${takagi3.gpt-api-key}
+  gpt-repost-url: ${takagi3.gpt-repost-url}
 
 
 shiro:
