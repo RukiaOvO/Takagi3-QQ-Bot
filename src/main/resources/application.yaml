@@ -35,6 +35,8 @@ logging:
 
 
 takagi3:
+  online-notify: true
+  offline-notify: true
   post-url: ${takagi3.post-url}
   serve-groups: ${takagi3.serve-groups}
   user-black-list: ${takagi3.user-black-list}

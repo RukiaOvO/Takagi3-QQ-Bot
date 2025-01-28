@@ -11,6 +11,10 @@ import java.util.List;
 @Data
 public class BotProperties
 {
+    Boolean onlineNotify;
+
+    Boolean offlineNotify;
+
     String postUrl;
 
     List<Long> serveGroups;

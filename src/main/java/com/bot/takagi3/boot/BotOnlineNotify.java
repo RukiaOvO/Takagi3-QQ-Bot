@@ -27,18 +27,24 @@ public class BotOnlineNotify extends CoreEvent
     @Override
     public void online(Bot bot)
     {
-        String onlineMsg = String.format("%s Takagi3-Bot:%s now is online.", CommonUtil.getFormattedLocalTime(), bot.getSelfId());
-        log.info(onlineMsg);
-        botProperties.getServeGroups().forEach(g -> bot.sendGroupMsg(g, onlineMsg, false));
+        if(botProperties.getOnlineNotify())
+        {
+            String onlineMsg = String.format("%s Takagi3-Bot now is online.", CommonUtil.getFormattedLocalTime());
+            log.info(onlineMsg);
+            botProperties.getServeGroups().forEach(g -> bot.sendGroupMsg(g, onlineMsg, false));
+        }
     }
 
     @Override
     public void offline(long account)
     {
-        String offlineMsg = String.format("%s Takagi3-Bot:%s now is offline.", CommonUtil.getFormattedLocalTime(), account);
-        log.info(offlineMsg);
+        if(botProperties.getOfflineNotify())
+        {
+            String offlineMsg = String.format("%s Takagi3-Bot now is offline.", CommonUtil.getFormattedLocalTime());
+            log.info(offlineMsg);
 
-        botProperties.getServeGroups().forEach(g -> sendOfflineMsg(offlineMsg, g));
+            botProperties.getServeGroups().forEach(g -> sendOfflineMsg(offlineMsg, g));
+        }
     }
 
     @Override
