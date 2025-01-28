@@ -1,4 +1,4 @@
-package com.bot.takagi3.constant;
+package com.bot.takagi3.common.constant;
 
 public class RequestParamConstant
 {

@@ -2,10 +2,10 @@ package com.bot.takagi3.service.Impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.bot.takagi3.constant.BotMsgConstant;
-import com.bot.takagi3.constant.CommonConstant;
-import com.bot.takagi3.constant.RedisConstant;
-import com.bot.takagi3.constant.RequestParamConstant;
+import com.bot.takagi3.common.constant.BotMsgConstant;
+import com.bot.takagi3.common.constant.CommonConstant;
+import com.bot.takagi3.common.constant.RedisConstant;
+import com.bot.takagi3.common.constant.RequestParamConstant;
 import com.bot.takagi3.model.GptMsg;
 import com.bot.takagi3.model.RandomAnimeImg;
 import com.bot.takagi3.properties.BotProperties;

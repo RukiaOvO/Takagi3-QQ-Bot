@@ -1,9 +1,11 @@
 package com.bot.takagi3.plugin;
 
-import com.bot.takagi3.constant.BotMsgConstant;
-import com.bot.takagi3.constant.CommonConstant;
-import com.bot.takagi3.constant.RequestParamConstant;
+import com.bot.takagi3.common.constant.BotMsgConstant;
+import com.bot.takagi3.common.constant.CommonConstant;
+import com.bot.takagi3.common.constant.RequestParamConstant;
+import com.bot.takagi3.common.enumeration.CustomActionPath;
 import com.bot.takagi3.properties.BotProperties;
+import com.bot.takagi3.util.ArrayMsgUtil;
 import com.bot.takagi3.util.CommonUtil;
 import com.mikuac.shiro.annotation.GroupMessageHandler;
 import com.mikuac.shiro.annotation.MessageHandlerFilter;
@@ -11,18 +13,24 @@ import com.mikuac.shiro.annotation.common.Shiro;
 import com.mikuac.shiro.common.utils.MsgUtils;
 import com.mikuac.shiro.common.utils.OneBotMedia;
 import com.mikuac.shiro.common.utils.ShiroUtils;
+import com.mikuac.shiro.constant.ActionParams;
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.dto.action.common.ActionData;
 import com.mikuac.shiro.dto.action.common.ActionRaw;
 import com.mikuac.shiro.dto.action.common.MsgId;
-import com.mikuac.shiro.dto.action.response.GroupMemberInfoResp;
 import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
 import com.mikuac.shiro.enums.AtEnum;
-import com.mikuac.shiro.task.ShiroAsyncTask;
+import com.mikuac.shiro.enums.MsgTypeEnum;
+import com.mikuac.shiro.model.ArrayMsg;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
@@ -33,7 +41,9 @@ public class BasicFuncPlugin
 {
     private final BotProperties botProperties;
 
-    public BasicFuncPlugin(BotProperties botProperties) {
+    @Autowired
+    public BasicFuncPlugin(BotProperties botProperties)
+    {
         this.botProperties = botProperties;
     }
 
@@ -142,25 +152,25 @@ public class BasicFuncPlugin
     }
 
     @GroupMessageHandler
-    @MessageHandlerFilter(cmd = "^翻译(\\s+[\\p{L}]+)(\\s+[\\u4e00-\\u9fa5]+)?$", at = AtEnum.NEED)
-    public void translateMsg(Bot bot, GroupMessageEvent event, Matcher matcher)
-    {
-        String textMsg = matcher.group(1);
-        String targetLanguage = matcher.group(2) == null ? "chinese" : matcher.group(2);
-    }
-
-    @GroupMessageHandler
     @MessageHandlerFilter(cmd = "^公告(\\s+.*)$", at = AtEnum.NEED)
-    public void publishGroupNotice(Bot bot, GroupMessageEvent event, Matcher matcher)
+    public void publishGroupNotice(Bot bot, GroupMessageEvent event)
     {
-        String content = matcher.group(1);
+        List<String> urlList = ShiroUtils.getMsgImgUrlList(event.getArrayMsg());
+        String content = ArrayMsgUtil.getTextContent(event.getArrayMsg()).trim().replace("公告", "");
 
-        log.info("User:{} sendGroupNotice:{}", event.getUserId(), content);
-        ActionRaw result = bot.sendGroupNotice(event.getGroupId(), content);
-        if(!result.getStatus().equals(BotMsgConstant.RESP_SUCCESS))
-        {
-            String replyMsg = MsgUtils.builder().at(event.getUserId()).reply(event.getMessageId()).text(BotMsgConstant.SEND_GROUP_NOTICE_FAILURE).build();
-            bot.sendGroupMsg(event.getGroupId(), replyMsg, false);
-        }
+        Map<String, Object> params = new HashMap<>();
+        params.put(ActionParams.GROUP_ID, event.getGroupId());
+        params.put(ActionParams.CONTENT, content);
+        params.put(ActionParams.IMAGE, (urlList == null || urlList.isEmpty()) ? "" : urlList.get(0));
+
+        log.info("User:{} publishGroupNotice:{}", event.getUserId(), content);
+        String result = bot.customRequest(CustomActionPath.SEND_GROUP_NOTICE, params).getStatus();
+        result = result.equals(BotMsgConstant.RESP_SUCCESS) ? BotMsgConstant.SEND_GROUP_NOTICE_SUCCESS : BotMsgConstant.SEND_GROUP_NOTICE_FAILURE;
+        result = MsgUtils.builder()
+                .at(event.getUserId())
+                .reply(event.getMessageId())
+                .text(result)
+                .build();
+        bot.sendGroupMsg(event.getGroupId(), result, false);
     }
 }

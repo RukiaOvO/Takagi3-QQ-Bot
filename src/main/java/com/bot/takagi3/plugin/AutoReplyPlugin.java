@@ -1,25 +1,16 @@
 package com.bot.takagi3.plugin;
 
-import com.alibaba.fastjson2.JSONObject;
-import com.bot.takagi3.constant.BotMsgConstant;
-import com.bot.takagi3.constant.RequestParamConstant;
-import com.bot.takagi3.properties.BotProperties;
-import com.bot.takagi3.util.HttpUtil;
+import com.bot.takagi3.common.constant.BotMsgConstant;
 import com.mikuac.shiro.annotation.GroupMessageHandler;
 import com.mikuac.shiro.annotation.GroupPokeNoticeHandler;
-import com.mikuac.shiro.annotation.MessageHandlerFilter;
 import com.mikuac.shiro.annotation.common.Shiro;
 import com.mikuac.shiro.common.utils.MsgUtils;
 import com.mikuac.shiro.common.utils.ShiroUtils;
-import com.mikuac.shiro.constant.ActionParams;
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.dto.event.message.GroupMessageEvent;
 import com.mikuac.shiro.dto.event.notice.PokeNoticeEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 @Shiro
 @Component

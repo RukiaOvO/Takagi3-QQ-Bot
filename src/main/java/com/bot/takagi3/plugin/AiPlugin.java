@@ -30,8 +30,9 @@ public class AiPlugin
         this.botProperties = botProperties;;
         this.httpRequestService = httpRequestService;
     }
+
     @GroupMessageHandler
-    @MessageHandlerFilter(cmd = "^GPT(\\s+.+)$", at = AtEnum.NEED)
+    @MessageHandlerFilter(cmd = "^(?i)GPT(\\s+.+)$", at = AtEnum.NEED)
     public void sendGptMsg(Bot bot, GroupMessageEvent event, Matcher matcher)
     {
         String text =  matcher.group(1).trim();

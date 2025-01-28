@@ -29,7 +29,10 @@ logging:
   level:
     com:
     bot:
-    takagi3: info
+    takagi3: debug
+  file:
+    name: bot.log
+
 
 takagi3:
   post-url: ${takagi3.post-url}

@@ -1,7 +1,7 @@
 package com.bot.takagi3.boot;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.bot.takagi3.constant.BotMsgConstant;
+import com.bot.takagi3.common.constant.BotMsgConstant;
 import com.bot.takagi3.properties.BotProperties;
 import com.bot.takagi3.util.CommonUtil;
 import com.bot.takagi3.util.HttpUtil;

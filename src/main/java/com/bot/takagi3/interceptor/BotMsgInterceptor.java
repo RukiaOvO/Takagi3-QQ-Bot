@@ -1,6 +1,6 @@
 package com.bot.takagi3.interceptor;
 
-import com.bot.takagi3.constant.MsgEventConstant;
+import com.bot.takagi3.common.constant.MsgEventConstant;
 import com.bot.takagi3.properties.BotProperties;
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.core.BotMessageEventInterceptor;

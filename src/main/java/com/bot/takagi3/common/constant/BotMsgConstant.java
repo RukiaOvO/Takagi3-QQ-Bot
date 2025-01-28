@@ -1,4 +1,4 @@
-package com.bot.takagi3.constant;
+package com.bot.takagi3.common.constant;
 
 public class BotMsgConstant
 {
@@ -24,6 +24,8 @@ public class BotMsgConstant
 
     public static final String SEND_GROUP_NOTICE_FAILURE = "设置群公告失败";
 
+    public static final String SEND_GROUP_NOTICE_SUCCESS = "设置群公告成功";
+
     public static final String GET_ORDER_MENU_FAILURE = "获取菜单数据失败";
 
     public static final String SEND_GPT_REQUEST_FAILURE = "请求Gpt失败";
@@ -35,4 +37,8 @@ public class BotMsgConstant
     public static final String BAN_GROUP_MEMBER = "禁言群友";
 
     public static final String RESP_SUCCESS = "ok";
+
+    public static final String MSG_TYPE_TEXT = "text";
+
+    public static final String MSG_TYPE_IMAGE = "image";
 }

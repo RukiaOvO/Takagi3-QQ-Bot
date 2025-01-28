@@ -1,6 +1,6 @@
 package com.bot.takagi3.plugin;
 
-import com.bot.takagi3.constant.BotMsgConstant;
+import com.bot.takagi3.common.constant.BotMsgConstant;
 import com.bot.takagi3.model.RandomAnimeImg;
 import com.bot.takagi3.service.HttpRequestService;
 import com.mikuac.shiro.annotation.GroupMessageHandler;
