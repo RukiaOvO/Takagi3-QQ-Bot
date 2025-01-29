@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "spring.datasource.druid")
 @Data
-public class MysqlProperties
-{
+public class MysqlProperties {
+    private Boolean enable;
     private String driverClassName;
     private String url;
     private String username;

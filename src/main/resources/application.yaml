@@ -10,6 +10,7 @@ spring:
     allow-circular-references: true
   datasource:
     druid:
+      enable: ${bot.datasource.enable}
       driver-class-name: ${bot.datasource.driver-class-name}
       url: jdbc:mysql://${bot.datasource.host}:${bot.datasource.port}/${bot.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: ${bot.datasource.username}
@@ -43,6 +44,9 @@ takagi3:
   gpt-model: ${takagi3.gpt-model}
   gpt-api-key: ${takagi3.gpt-api-key}
   gpt-repost-url: ${takagi3.gpt-repost-url}
+  doubao-model: ${takagi3.doubao-model}
+  doubao-api-key: ${takagi3.doubao-api-key}
+  data-folder: ${takagi3.data-folder}
 
 
 shiro:

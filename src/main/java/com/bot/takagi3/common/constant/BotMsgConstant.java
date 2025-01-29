@@ -1,8 +1,8 @@
 package com.bot.takagi3.common.constant;
 
-public class BotMsgConstant
-{
-    private BotMsgConstant(){}
+public class BotMsgConstant {
+    private BotMsgConstant() {
+    }
 
     public static final String REPLY_AT_ALL = "?";
 
@@ -28,7 +28,7 @@ public class BotMsgConstant
 
     public static final String GET_ORDER_MENU_FAILURE = "获取菜单数据失败";
 
-    public static final String SEND_GPT_REQUEST_FAILURE = "请求Gpt失败";
+    public static final String SEND_LLM_REQUEST_FAILURE = "请求大模型失败";
 
     public static final String UNKNOWN_GROUP_MEMBER = "查无此群友";
 

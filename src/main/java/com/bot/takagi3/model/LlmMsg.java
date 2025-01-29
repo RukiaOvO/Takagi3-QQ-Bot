@@ -13,7 +13,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class GptMsg implements Serializable
+public class LlmMsg implements Serializable
 {
     private String role;
 
