@@ -26,11 +26,13 @@ public class BotProperties {
 
     String gptApiKey;
 
-    String gptRepostUrl;
-
     String douBaoApiKey;
 
     String douBaoModel;
+
+    String deepSeekModel;
+
+    String deepSeekApiKey;
 
     File dataFolder;
 }

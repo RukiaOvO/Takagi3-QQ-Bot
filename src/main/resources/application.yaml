@@ -24,8 +24,6 @@ spring:
       password: ${bot.redis.password}
       database: ${bot.redis.database}
 
-
-
 logging:
   level:
     com:
@@ -43,9 +41,10 @@ takagi3:
   user-black-list: ${takagi3.user-black-list}
   gpt-model: ${takagi3.gpt-model}
   gpt-api-key: ${takagi3.gpt-api-key}
-  gpt-repost-url: ${takagi3.gpt-repost-url}
-  doubao-model: ${takagi3.doubao-model}
-  doubao-api-key: ${takagi3.doubao-api-key}
+  dou-bao-model: ${takagi3.dou-bao-model}
+  dou-bao-api-key: ${takagi3.dou-bao-api-key}
+#  deep-seek-model: ${takagi3.deep-seek-model}
+#  deep-seek-api-key: ${takagi3.deep-seek-api-key}
   data-folder: ${takagi3.data-folder}
 
 

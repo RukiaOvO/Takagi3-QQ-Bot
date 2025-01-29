@@ -3,6 +3,7 @@ package com.bot.takagi3.service.Impl;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.bot.takagi3.common.constant.*;
+import com.bot.takagi3.common.enumeration.LlmTypeEnum;
 import com.bot.takagi3.config.LevelDBConfiguration;
 import com.bot.takagi3.model.LlmMsg;
 import com.bot.takagi3.model.RandomAnimeImg;
@@ -13,6 +14,7 @@ import com.bot.takagi3.util.LevelDBSingleton;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mikuac.shiro.common.utils.OneBotMedia;
+import com.mikuac.shiro.constant.ActionParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,12 +29,10 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class HttpRequestServiceImpl implements HttpRequestService {
     private final BotProperties botProperties;
-    private final RedisTemplate redisTemplate;
 
     @Autowired
-    public HttpRequestServiceImpl(RedisTemplate redisTemplate, BotProperties botProperties) {
+    public HttpRequestServiceImpl(BotProperties botProperties) {
         this.botProperties = botProperties;
-        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -62,80 +62,37 @@ public class HttpRequestServiceImpl implements HttpRequestService {
                 .build();
     }
 
-    @Override
-    public String postForGptResponse(LlmMsg msg, Long userId) {
-        List<LlmMsg> msgList = new ArrayList<>();
-        String cacheKey = RedisConstant.GPT_MSG_CACHE_PREFIX + userId;
-        LlmMsg data = (LlmMsg) redisTemplate.opsForValue().get(cacheKey);
-        if (data != null) {
-            msgList.add(data);
-        }
-        msgList.add(msg);
-
-        JSONObject params = new JSONObject();
-        params.put("model", botProperties.getGptModel());
-        params.put("messages", msgList);
-        String result = HttpUtil.asyncPost(botProperties.getGptRepostUrl(), params.toJSONString(), "Bearer " + botProperties.getGptApiKey(), 20);
-
-        String gptModelType = (String) JSONObject.parseObject(result).get("model");
-        if (gptModelType == null || gptModelType.isEmpty()) {
-            return BotMsgConstant.SEND_LLM_REQUEST_FAILURE;
-        }
-
-        JSONArray choices = JSONObject.parseObject(result).getJSONArray("choices");
-        if (choices == null || choices.isEmpty()) {
-            return BotMsgConstant.SEND_LLM_REQUEST_FAILURE;
-        }
-        LlmMsg respMsg = JSONObject.parseObject(((JSONObject) choices.get(0)).getJSONObject("message").toJSONString(), LlmMsg.class);
-        if (respMsg == null) {
-            return BotMsgConstant.SEND_LLM_REQUEST_FAILURE;
-        }
-
-        redisTemplate.opsForValue().set(cacheKey, respMsg, CommonConstant.GPT_MSG_TIMEOUT, TimeUnit.MINUTES);
-        return gptModelType + ":" + respMsg.getContent();
-    }
 
     @Override
-    public String postForDoubaoResponse(LlmMsg msg, Long userId) {
+    public String generateLlmResponse(String msg, Long userId, LlmTypeEnum llmType) {
         List<LlmMsg> msgList = new ArrayList<>();
 
-        String cacheKey = LevelDBConstant.LLM_MSG_CACHE_PREFIX + userId;
+        String cacheKey = LlmConstant.LLM_MSG_CACHE_PREFIX + llmType.getPath() + userId;
+
         byte[] bytes = LevelDBSingleton.INSTANCE.get(cacheKey);
-
-        if (msg.getContent().equals("重置")) {
+        if (msg.equals(LlmConstant.LLM_MEM_RELOAD_ORDER)) {
             LevelDBSingleton.INSTANCE.delete(cacheKey);
-            return cacheKey + "重置记忆完成";
+            return cacheKey + LlmConstant.LLM_MEM_RELOAD_RESP;
         }
-
         if (bytes != null) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 msgList = objectMapper.readValue(bytes, objectMapper.getTypeFactory().constructCollectionType(List.class, LlmMsg.class));
             } catch (IOException e) {
-                log.error("缓存数据反序列化出错 " + e.getMessage());
+                log.error(CommonConstant.CACHE_DESERIALIZATION_ERROR + "{}", e.getMessage());
             }
         } else {
-            msgList.add(new LlmMsg("system", "你是“大唐盛世BigTBot”，是由唐氏儿开发唐氏儿第二代智能唐氏儿"));
+            msgList.add(new LlmMsg(LlmConstant.LLM_SYSTEM, LlmConstant.LLM_INIT_MSG));
         }
+        msgList.add(new LlmMsg(LlmConstant.LLM_USER, msg));
 
-        msgList.add(new LlmMsg("user", msg.getContent()));
-
-        JSONObject params = new JSONObject();
-        params.put("model", botProperties.getDouBaoModel());
-        params.put("messages", msgList);
-
-        String apiKey = botProperties.getDouBaoApiKey();
-        String baseUrl = "https://ark.cn-beijing.volces.com/api/v3";
-        String result = HttpUtil.asyncPost(baseUrl + "/chat/completions", params.toJSONString(), "Bearer " + apiKey, 20);
+        String result = questLlm(msgList, llmType);
 
         JSONArray choices = JSONObject.parseObject(result).getJSONArray("choices");
         if (choices == null || choices.isEmpty()) {
             return BotMsgConstant.SEND_LLM_REQUEST_FAILURE;
         }
         LlmMsg respMsg = JSONObject.parseObject(((JSONObject) choices.get(0)).getJSONObject("message").toJSONString(), LlmMsg.class);
-        if (respMsg == null) {
-            return BotMsgConstant.SEND_LLM_REQUEST_FAILURE;
-        }
 
         if (respMsg == null) {
             return BotMsgConstant.SEND_LLM_REQUEST_FAILURE;
@@ -143,16 +100,43 @@ public class HttpRequestServiceImpl implements HttpRequestService {
             msgList.add(respMsg);
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
-                byte[] writeBytes = objectMapper.writeValueAsBytes(msgList);
-                LevelDBSingleton.INSTANCE.set(cacheKey, writeBytes);
+                LevelDBSingleton.INSTANCE.set(cacheKey, objectMapper.writeValueAsBytes(msgList));
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                log.error(CommonConstant.CACHE_SERIALIZATION_ERROR + "{}", e.getMessage());
+            }
+        }
+        return respMsg.getContent();
+    }
+
+    private String questLlm(List<LlmMsg> msgList, LlmTypeEnum type)
+    {
+        String model;
+        String apiKey;
+        String llmUrl;
+
+        switch(type)
+        {
+            case DOU_BAO -> {
+                model = botProperties.getDouBaoModel();
+                apiKey = botProperties.getDouBaoApiKey();
+                llmUrl = LlmConstant.DOU_BAO_URL;
+            }
+            case DEEP_SEEK -> {
+                model = botProperties.getDeepSeekModel();
+                apiKey = botProperties.getDeepSeekApiKey();
+                llmUrl = LlmConstant.DEEP_SEEK_URL;
+            }
+            default -> {
+                model = botProperties.getGptModel();
+                apiKey = botProperties.getGptApiKey();
+                llmUrl = LlmConstant.GPT_URL;
             }
         }
 
-        System.out.println(msgList.toString());
+        JSONObject params = new JSONObject();
+        params.put("model", model);
+        params.put("messages", msgList);
 
-        return respMsg.getContent();
-
+        return HttpUtil.asyncPost(llmUrl, params.toJSONString(), "Bearer " + apiKey, LlmConstant.LLM_REQUEST_TIMEOUT);
     }
 }

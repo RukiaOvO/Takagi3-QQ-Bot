@@ -36,8 +36,8 @@ public class LevelDBConfiguration {
             LevelDBSingleton.init(Iq80DBFactory.factory.open(new File(botProperties.getDataFolder(), "database"),
                     new Options().createIfMissing(true)));
         } catch (IOException e) {
+            log.error("Init DB error: {}", e.getMessage());
             e.printStackTrace();
-            return;
         }
     }
 

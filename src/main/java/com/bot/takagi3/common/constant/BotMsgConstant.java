@@ -41,4 +41,5 @@ public class BotMsgConstant {
     public static final String MSG_TYPE_TEXT = "text";
 
     public static final String MSG_TYPE_IMAGE = "image";
+
 }
