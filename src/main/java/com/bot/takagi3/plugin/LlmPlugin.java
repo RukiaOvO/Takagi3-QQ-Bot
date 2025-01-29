@@ -63,7 +63,7 @@ public class LlmPlugin
     }
 
     @GroupMessageHandler
-    @MessageHandlerFilter(cmd = "^(?i)Dk(\\s+.+)$", at = AtEnum.NEED)
+    @MessageHandlerFilter(cmd = "^(?i)Ds(\\s+.+)$", at = AtEnum.NEED)
     public void sendDeepSeekMsg(Bot bot, GroupMessageEvent event, Matcher matcher)
     {
         String text = matcher.group(1).trim();
